@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 import 'package:flutter_pay/models/payment_item.dart';
+import 'package:flutter_pay/models/flutter_pay_error.dart';
 
 class FlutterPay {
   static const MethodChannel _channel = const MethodChannel('flutter_pay');
@@ -17,13 +18,13 @@ class FlutterPay {
     return canMakePayments;
   }
 
-  Future<void> requestPayment({
-    String merchantIdentifier,
-    String currencyCode,
-    String countryCode,
-    List<PaymentItem> paymentItems}) async {
-
-    List<Map<String, String>> items = paymentItems.map((item) => item.toJson()).toList();
+  Future<String> makePayment(
+      {String merchantIdentifier,
+      String currencyCode,
+      String countryCode,
+      List<PaymentItem> paymentItems}) async {
+    List<Map<String, String>> items =
+        paymentItems.map((item) => item.toJson()).toList();
 
     Map<String, dynamic> params = {
       "merchantIdentifier": merchantIdentifier,
@@ -31,6 +32,18 @@ class FlutterPay {
       "countryCode": countryCode,
       "items": items,
     };
-    await _channel.invokeMethod('requestPayment', params);
+    Map<String, String> payResponse =
+        await _channel.invokeMethod('requestPayment', params);
+    String paymentToken = payResponse["token"];
+    String error = payResponse["error"];
+    print("Payment token: $paymentToken");
+    print("Error: $error");
+    if (paymentToken != null) {
+      print("Payment token: $paymentToken");
+      return paymentToken;
+    }
+    if (error != null) {
+      throw FlutterPayError(description: error);
+    }
   }
 }

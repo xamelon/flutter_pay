@@ -18,6 +18,8 @@ public class SwiftFlutterPayPlugin: NSObject, FlutterPlugin {
     registrar.addMethodCallDelegate(instance, channel: channel)
   }
 
+    private var flutterResult: FlutterResult?
+    
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     guard let method = Method(rawValue: call.method) else {
         return
@@ -66,19 +68,43 @@ public class SwiftFlutterPayPlugin: NSObject, FlutterPlugin {
         
         let paymentController = PKPaymentAuthorizationController(paymentRequest: paymentRequest)
         paymentController.delegate = self
+        self.flutterResult = result
         paymentController.present(completion: nil)
+    }
+    
+    private func paymentResult(pkPayment: PKPayment?) {
+        if let result = flutterResult {
+            var value: [String: String?]
+            
+            if let payment = pkPayment {
+                let token = String(data: payment.token.paymentData, encoding: .utf8)
+                value = [
+                    "token": token,
+                    "error": nil
+                ]
+                result(value)
+            } else {
+                value = [
+                    "token": nil,
+                    "error": "Can't process payment"
+                ]
+                result(value)
+            }
+            flutterResult = nil
+        }
     }
 }
 
 @available(iOS 10.0, *)
 extension SwiftFlutterPayPlugin: PKPaymentAuthorizationControllerDelegate {
     public func paymentAuthorizationControllerDidFinish(_ controller: PKPaymentAuthorizationController) {
-        
+        paymentResult(pkPayment: nil)
+        controller.dismiss(completion: nil)
     }
     
     @available(iOS 11.0, *)
     public func paymentAuthorizationController(_ controller: PKPaymentAuthorizationController, didAuthorizePayment payment: PKPayment, handler completion: @escaping (PKPaymentAuthorizationResult) ->  Void) {
-        print("Payment token: \(payment.token)")
+        paymentResult(pkPayment: payment)
         completion(PKPaymentAuthorizationResult(status: .success, errors: nil))
     }
     
