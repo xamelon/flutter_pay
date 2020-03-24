@@ -41,10 +41,10 @@ public class SwiftFlutterPayPlugin: NSObject, FlutterPlugin {
     func requestPayment(arguments: Any? = nil, result: @escaping FlutterResult) {
         guard let params = arguments as? [String: Any],
                 let merchantID = params["merchantIdentifier"] as? String,
-                let currency = params["currency"] as? String,
+                let currency = params["currencyCode"] as? String,
                 let countryCode = params["countryCode"] as? String,
                 let items = params["items"] as? [[String: String]] else {
-            return;
+                    fatalError("Parameters are invalid")
         }
         
         var paymentItems = [PKPaymentSummaryItem]()
@@ -62,8 +62,29 @@ public class SwiftFlutterPayPlugin: NSObject, FlutterPlugin {
         paymentRequest.merchantCapabilities = .capability3DS
         paymentRequest.countryCode = countryCode
         paymentRequest.currencyCode = currency
+        paymentRequest.supportedNetworks = [.visa, .masterCard]
         
         let paymentController = PKPaymentAuthorizationController(paymentRequest: paymentRequest)
+        paymentController.delegate = self
         paymentController.present(completion: nil)
     }
+}
+
+@available(iOS 10.0, *)
+extension SwiftFlutterPayPlugin: PKPaymentAuthorizationControllerDelegate {
+    public func paymentAuthorizationControllerDidFinish(_ controller: PKPaymentAuthorizationController) {
+        
+    }
+    
+    @available(iOS 11.0, *)
+    public func paymentAuthorizationController(_ controller: PKPaymentAuthorizationController, didAuthorizePayment payment: PKPayment, handler completion: @escaping (PKPaymentAuthorizationResult) ->  Void) {
+        print("Payment token: \(payment.token)")
+        completion(PKPaymentAuthorizationResult(status: .success, errors: nil))
+    }
+    
+    
+    
+    
+    
+    
 }
