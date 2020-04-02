@@ -45,6 +45,7 @@ public class SwiftFlutterPayPlugin: NSObject, FlutterPlugin {
                 let merchantID = params["merchantIdentifier"] as? String,
                 let currency = params["currencyCode"] as? String,
                 let countryCode = params["countryCode"] as? String,
+                let merchantName = params["merchantName"] as? String,
                 let items = params["items"] as? [[String: String]] else {
                     fatalError("Parameters are invalid")
         }
