@@ -16,7 +16,7 @@ public class SwiftFlutterPayPlugin: NSObject, FlutterPlugin {
     private var flutterResult: FlutterResult?
     
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    if(call.method == "canMakePayment") {
+    if(call.method == "canMakePayments") {
         canMakePayment(result: result)
     } else if(call.method == "requestPayment") {
         requestPayment(arguments: call.arguments, result: result)
