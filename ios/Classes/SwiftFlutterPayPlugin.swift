@@ -2,11 +2,6 @@ import Flutter
 import UIKit
 import PassKit
 
-enum Method : String {
-    case canMakePayment = "canMakePayment"
-    case requestPayment = "requestPayment"
-}
-
 @available(iOS 10.0, *)
 public class SwiftFlutterPayPlugin: NSObject, FlutterPlugin {
     
@@ -21,18 +16,12 @@ public class SwiftFlutterPayPlugin: NSObject, FlutterPlugin {
     private var flutterResult: FlutterResult?
     
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    guard let method = Method(rawValue: call.method) else {
-        return
+    if(call.method == "canMakePayment") {
+        canMakePayment(result: result)
+    } else if(call.method == "requestPayment") {
+        requestPayment(arguments: call.arguments, result: result)
     }
     
-    switch method {
-    case .canMakePayment:
-        canMakePayment(result: result)
-        break;
-    case .requestPayment:
-        requestPayment(arguments: call.arguments, result: result)
-        break;
-    }
   }
     
     func canMakePayment(arguments: Any? = nil, result: @escaping FlutterResult) {
@@ -45,7 +34,6 @@ public class SwiftFlutterPayPlugin: NSObject, FlutterPlugin {
                 let merchantID = params["merchantIdentifier"] as? String,
                 let currency = params["currencyCode"] as? String,
                 let countryCode = params["countryCode"] as? String,
-                let merchantName = params["merchantName"] as? String,
                 let items = params["items"] as? [[String: String]] else {
                     fatalError("Parameters are invalid")
         }
@@ -61,6 +49,7 @@ public class SwiftFlutterPayPlugin: NSObject, FlutterPlugin {
         
         let paymentRequest = PKPaymentRequest()
         paymentRequest.paymentSummaryItems = paymentItems
+        
         paymentRequest.merchantIdentifier = merchantID
         paymentRequest.merchantCapabilities = .capability3DS
         paymentRequest.countryCode = countryCode
