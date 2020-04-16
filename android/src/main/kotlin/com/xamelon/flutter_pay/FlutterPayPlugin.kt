@@ -234,7 +234,7 @@ public class FlutterPayPlugin: FlutterPlugin, MethodCallHandler, PluginRegistry.
         }
 
       } else if(resultCode == Activity.RESULT_CANCELED) {
-
+        this.lastResult?.error("com.flutter_pay.userCancelledError", "User cancelled the payment", null);
       }
       this.lastResult = null
     }
