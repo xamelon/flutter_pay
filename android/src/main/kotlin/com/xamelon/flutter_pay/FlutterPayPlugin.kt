@@ -38,7 +38,7 @@ public class FlutterPayPlugin: FlutterPlugin, MethodCallHandler, PluginRegistry.
 
   private fun createPaymentsClient() {
     val walletOptions = Wallet.WalletOptions.Builder()
-            .setEnvironment(WalletConstants.ENVIRONMENT_TEST)
+            .setEnvironment(WalletConstants.ENVIRONMENT_PRODUCTION)
             .setTheme(WalletConstants.THEME_LIGHT)
             .build()
     this.googlePayClient = Wallet.getPaymentsClient(this.activity, walletOptions)
