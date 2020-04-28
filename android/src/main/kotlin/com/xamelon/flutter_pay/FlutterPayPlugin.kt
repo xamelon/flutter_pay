@@ -93,7 +93,6 @@ public class FlutterPayPlugin: FlutterPlugin, MethodCallHandler, PluginRegistry.
 
   private fun getAllowedCardAuthMethods(): JSONArray {
     return JSONArray()
-            .put("PAN_ONLY")
             .put("CRYPTOGRAM_3DS")
   }
 
@@ -186,6 +185,7 @@ public class FlutterPayPlugin: FlutterPlugin, MethodCallHandler, PluginRegistry.
   private fun canMakePayments(result: Result) {
     val isReadyToPayRequest = IsReadyToPayRequest.newBuilder()
             .addAllowedPaymentMethod(WalletConstants.PAYMENT_METHOD_CARD)
+            .setExistingPaymentMethodRequired(true)
             .addAllowedPaymentMethod(WalletConstants.PAYMENT_METHOD_TOKENIZATION_TYPE_PAYMENT_GATEWAY)
             .build()
     val task = googlePayClient.isReadyToPay(isReadyToPayRequest)
