@@ -49,6 +49,18 @@ class _MyAppState extends State<MyApp> {
               },
             ),
             FlatButton(
+              child: Text("Can make payments with Visa and MasterCard?"),
+              onPressed: () async {
+                bool result = await flutterPay.canMakePaymentsWithActiveCard(
+                  allowedPaymentNetworks: [
+                    PaymentNetwork.visa,
+                    PaymentNetwork.masterCard,
+                  ],
+                );
+                print("Can make payments: $result");
+              },
+            ),
+            FlatButton(
                 child: Text("Try to pay?"),
                 onPressed: () {
                   makePayment();

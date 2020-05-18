@@ -4,12 +4,30 @@ import 'package:flutter/services.dart';
 
 import 'package:flutter_pay/models/payment_item.dart';
 import 'package:flutter_pay/models/flutter_pay_error.dart';
+import 'package:flutter_pay/models/payment_network.dart';
 
 class FlutterPay {
   final MethodChannel _channel = MethodChannel('flutter_pay');
 
+  /// Returns true if Apple/ Google Pay is available on device
   Future<bool> get canMakePayments async {
     final bool canMakePayments = await _channel.invokeMethod('canMakePayments');
+    return canMakePayments;
+  }
+
+  /// Returns true if Apple/Google Pay is available on device
+  /// and there is at least one activated card
+  /// with payment networks
+  Future<bool> canMakePaymentsWithActiveCard({
+    List<PaymentNetwork> allowedPaymentNetworks,
+  }) async {
+    List<String> paymentNetworks = allowedPaymentNetworks.map((network) => network.toJson()).toList();
+    Map<String, dynamic> params = {
+      "paymentNetwork": paymentNetworks
+    };
+
+    final bool canMakePayments =
+        await _channel.invokeMethod('canMakePaymentsWithActiveCard', params);
     return canMakePayments;
   }
 
@@ -19,7 +37,7 @@ class FlutterPay {
       String countryCode,
       List<PaymentItem> paymentItems,
       String merchantName,
-      String gatewayName = null}) async {
+      String gatewayName}) async {
     List<Map<String, String>> items =
         paymentItems.map((item) => item.toJson()).toList();
 
@@ -34,8 +52,10 @@ class FlutterPay {
       "items": items,
     };
     try {
-      dynamic rawPayResponse = await _channel.invokeMethod('requestPayment', params);
-      Map<String, String> payResponse = Map<String, String>.from(rawPayResponse);
+      dynamic rawPayResponse =
+          await _channel.invokeMethod('requestPayment', params);
+      Map<String, String> payResponse =
+          Map<String, String>.from(rawPayResponse);
       if (payResponse == null) {
         throw FlutterPayError(description: "Pay response cannot be parsed");
       }
@@ -50,8 +70,9 @@ class FlutterPay {
       if (error != null) {
         throw FlutterPayError(description: error);
       }
-    } on PlatformException catch(e) {
-        throw FlutterPayError(description: e.message);
+    } on PlatformException catch (e) {
+      throw FlutterPayError(description: e.message);
     }
+    return "";
   }
 }

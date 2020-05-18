@@ -185,6 +185,26 @@ public class FlutterPayPlugin: FlutterPlugin, MethodCallHandler, PluginRegistry.
   private fun canMakePayments(result: Result) {
     val isReadyToPayRequest = IsReadyToPayRequest.newBuilder()
             .addAllowedPaymentMethod(WalletConstants.PAYMENT_METHOD_CARD)
+            .addAllowedPaymentMethod(WalletConstants.PAYMENT_METHOD_TOKENIZATION_TYPE_PAYMENT_GATEWAY)
+            .build()
+    val task = googlePayClient.isReadyToPay(isReadyToPayRequest)
+    task.addOnCompleteListener {
+      try {
+        if(it.getResult(ApiException::class.java) == true) {
+          result.success(true)
+        } else {
+          result.success(false)
+        }
+      } catch(e: ApiException) {
+        e.printStackTrace()
+        result.success(false)
+      }
+    }
+  }
+
+  private fun canMakePaymentsWithActiveCard(result: Result) {
+    val isReadyToPayRequest = IsReadyToPayRequest.newBuilder()
+            .addAllowedPaymentMethod(WalletConstants.PAYMENT_METHOD_CARD)
             .setExistingPaymentMethodRequired(true)
             .addAllowedPaymentMethod(WalletConstants.PAYMENT_METHOD_TOKENIZATION_TYPE_PAYMENT_GATEWAY)
             .build()

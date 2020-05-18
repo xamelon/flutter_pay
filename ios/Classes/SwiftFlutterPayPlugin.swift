@@ -18,6 +18,8 @@ public class SwiftFlutterPayPlugin: NSObject, FlutterPlugin {
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     if(call.method == "canMakePayments") {
         canMakePayment(result: result)
+    } else if(call.method == "canMakePaymentsWithActiveCard") {
+        canMakePaymentsWithActiveCard(arguments: call.arguments, result: result)
     } else if(call.method == "requestPayment") {
         requestPayment(arguments: call.arguments, result: result)
     }
@@ -28,6 +30,17 @@ public class SwiftFlutterPayPlugin: NSObject, FlutterPlugin {
         let canMakePayment = PKPaymentAuthorizationController.canMakePayments()
         result(canMakePayment)
     }
+
+    func canMakePaymentsWithActiveCard(arguments: Any? = nil, result: @escaping FlutterResult) {
+        guard let params = arguments as? [String: Any],
+            let paymentNetworks = params["paymentNetworks"] as? [String] else {
+                result(FlutterError(code: "0", message: "Invalid parameters", details: nil))
+                return;
+        }
+        let pkPaymentNetworks: [PKPaymentNetwork] = paymentNetworks.compactMap({ PaymentNetworkHelper.decodePaymentNetwork($0) })
+        let canMakePayments = PKPaymentAuthorizationController.canMakePayments(usingNetworks: pkPaymentNetworks)
+        result(canMakePayments)
+    }
     
     func requestPayment(arguments: Any? = nil, result: @escaping FlutterResult) {
         guard let params = arguments as? [String: Any],
@@ -35,7 +48,7 @@ public class SwiftFlutterPayPlugin: NSObject, FlutterPlugin {
                 let currency = params["currencyCode"] as? String,
                 let countryCode = params["countryCode"] as? String,
                 let items = params["items"] as? [[String: String]] else {
-                    fatalError("Parameters are invalid")
+                    result(FlutterError(code: "0", message: "Invalid parameters", details: nil))
         }
         
         var paymentItems = [PKPaymentSummaryItem]()
@@ -97,10 +110,4 @@ extension SwiftFlutterPayPlugin: PKPaymentAuthorizationControllerDelegate {
         paymentResult(pkPayment: payment)
         completion(PKPaymentAuthorizationResult(status: .success, errors: nil))
     }
-    
-    
-    
-    
-    
-    
 }
