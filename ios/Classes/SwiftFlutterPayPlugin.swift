@@ -22,7 +22,7 @@ public class SwiftFlutterPayPlugin: NSObject, FlutterPlugin {
         canMakePaymentsWithActiveCard(arguments: call.arguments, result: result)
     } else if(call.method == "requestPayment") {
         requestPayment(arguments: call.arguments, result: result)
-    }
+    } else if(call.method == "switchEnvironment") {}
     
   }
     

@@ -9,6 +9,14 @@ import 'package:flutter_pay/models/payment_network.dart';
 class FlutterPay {
   final MethodChannel _channel = MethodChannel('flutter_pay');
 
+  /// Switch Google Pay environment
+  Future<void> switchEnvironment({bool isTestEnvironment}) async {
+    Map<String, bool> params = {
+      "isTestEnvironment": isTestEnvironment
+    };
+    _channel.invokeMethod('switchEnvironment', params);
+  }
+
   /// Returns true if Apple/ Google Pay is available on device
   Future<bool> get canMakePayments async {
     final bool canMakePayments = await _channel.invokeMethod('canMakePayments');

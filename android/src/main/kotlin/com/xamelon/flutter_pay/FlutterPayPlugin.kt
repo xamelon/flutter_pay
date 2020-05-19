@@ -27,6 +27,7 @@ public class FlutterPayPlugin: FlutterPlugin, MethodCallHandler, PluginRegistry.
 
   private lateinit  var googlePayClient: PaymentsClient
   private lateinit var activity: Activity
+  private var environment = WalletConstants.ENVIRONMENT_PRODUCTION
 
   private final val LOAD_PAYMENT_DATA_REQUEST_CODE = 991
 
@@ -39,7 +40,7 @@ public class FlutterPayPlugin: FlutterPlugin, MethodCallHandler, PluginRegistry.
 
   private fun createPaymentsClient() {
     val walletOptions = Wallet.WalletOptions.Builder()
-            .setEnvironment(WalletConstants.ENVIRONMENT_PRODUCTION)
+            .setEnvironment(environment)
             .setTheme(WalletConstants.THEME_LIGHT)
             .build()
     this.googlePayClient = Wallet.getPaymentsClient(this.activity, walletOptions)
@@ -73,8 +74,25 @@ public class FlutterPayPlugin: FlutterPlugin, MethodCallHandler, PluginRegistry.
       if(args is Map) {
         requestPayment(args)
       }
+    } else if(call.method == "switchEnvironment") {
+      val args = call.arguments as? Map<String, Any>
+      if(args is Map<String, Any>) {
+        switchEnvirnoment(args)
+      }
     } else {
       result.notImplemented()
+    }
+  }
+
+  private fun switchEnvirnoment(args: Map<String, Any>) {
+    val isTestEnvironment = args["isTestEnvironment"] as? Boolean
+    if(isTestEnvironment != null) {
+      if(isTestEnvironment) {
+        environment = WalletConstants.ENVIRONMENT_TEST;
+      } else {
+        environment = WalletConstants.ENVIRONMENT_PRODUCTION;
+      }
+      createPaymentsClient()
     }
   }
 
@@ -197,8 +215,8 @@ public class FlutterPayPlugin: FlutterPlugin, MethodCallHandler, PluginRegistry.
                 try {
                   print("${it.getResult(ApiException::class.java)}")
                 } catch(e: ApiException) {
-                  e.printStackTrace()
-                  print(e.statusCode)
+
+                  print("Tortik:  e.message")
                 }
               }
       AutoResolveHelper.resolveTask(task, this.activity, LOAD_PAYMENT_DATA_REQUEST_CODE)
@@ -258,7 +276,9 @@ public class FlutterPayPlugin: FlutterPlugin, MethodCallHandler, PluginRegistry.
 
 
   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
+
     if(requestCode == LOAD_PAYMENT_DATA_REQUEST_CODE) {
+      print("Result code: $resultCode")
       if(resultCode == Activity.RESULT_OK) {
         if(data != null) {
           val paymentData = PaymentData.getFromIntent(data)
@@ -285,6 +305,7 @@ public class FlutterPayPlugin: FlutterPlugin, MethodCallHandler, PluginRegistry.
       } else if(resultCode == Activity.RESULT_CANCELED) {
         this.lastResult?.error("com.flutter_pay.userCancelledError", "User cancelled the payment", null);
       }
+
       this.lastResult = null
     }
     return false
