@@ -14,6 +14,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   FlutterPay flutterPay = FlutterPay();
 
+  String result = "Result will be shown here";
+
   @override
   void initState() {
     super.initState();
@@ -25,11 +27,11 @@ class _MyAppState extends State<MyApp> {
     ];
 
     flutterPay.makePayment(
-        merchantIdentifier: "dominospizza1",
+        merchantIdentifier: "_",
         currencyCode: "RUB",
         countryCode: "RU",
         paymentItems: items,
-        gatewayName: "sberbank");
+        gatewayName: "_");
   }
 
   @override
@@ -40,32 +42,57 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Container(
-          child: Column(children: [
-            FlatButton(
-              child: Text("Can make payments?"),
-              onPressed: () async {
-                bool result = await flutterPay.canMakePayments;
-                print("Can make payments: $result");
-              },
-            ),
-            FlatButton(
-              child: Text("Can make payments with Visa and MasterCard?"),
-              onPressed: () async {
-                bool result = await flutterPay.canMakePaymentsWithActiveCard(
-                  allowedPaymentNetworks: [
-                    PaymentNetwork.visa,
-                    PaymentNetwork.masterCard,
-                  ],
-                );
-                print("Can make payments: $result");
-              },
-            ),
-            FlatButton(
-                child: Text("Try to pay?"),
-                onPressed: () {
-                  makePayment();
-                })
-          ]),
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.space_between,
+              children: [
+                Text(
+                  this.result,
+                  style: TextStyle(
+                    fontSize: 16.0,
+                  ),
+                ),
+                FlatButton(
+                  child: Text("Can make payments?"),
+                  onPressed: () async {
+                    try {
+                      bool result = await flutterPay.canMakePayments;
+                      setState(() {
+                        this.result = "Can make payments: $result";
+                      });
+                    } catch (e) {
+                      setState(() {
+                        this.result = "$e";
+                      });
+                    }
+                  },
+                ),
+                FlatButton(
+                  child: Text("Can make payments with verified card: $result"),
+                  onPressed: () async {
+                    try {
+                      bool result =
+                          await flutterPay.canMakePaymentsWithActiveCard(
+                        allowedPaymentNetworks: [
+                          PaymentNetwork.visa,
+                          PaymentNetwork.masterCard,
+                        ],
+                      );
+                      setState(() {
+                        this.result = "$result";
+                      });
+                    } catch (e) {
+                      setState(() {
+                        this.result = "Error: $e";
+                      });
+                    }
+                  },
+                ),
+                FlatButton(
+                    child: Text("Try to pay?"),
+                    onPressed: () {
+                      makePayment();
+                    })
+              ]),
         ),
       ),
     );

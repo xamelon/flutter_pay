@@ -21,10 +21,9 @@ class FlutterPay {
   Future<bool> canMakePaymentsWithActiveCard({
     List<PaymentNetwork> allowedPaymentNetworks,
   }) async {
-    List<String> paymentNetworks = allowedPaymentNetworks.map((network) => network.toJson()).toList();
-    Map<String, dynamic> params = {
-      "paymentNetwork": paymentNetworks
-    };
+    List<String> paymentNetworks =
+        allowedPaymentNetworks.map((network) => network.toJson()).toList();
+    Map<String, dynamic> params = {"paymentNetworks": paymentNetworks};
 
     final bool canMakePayments =
         await _channel.invokeMethod('canMakePaymentsWithActiveCard', params);

@@ -49,6 +49,7 @@ public class SwiftFlutterPayPlugin: NSObject, FlutterPlugin {
                 let countryCode = params["countryCode"] as? String,
                 let items = params["items"] as? [[String: String]] else {
                     result(FlutterError(code: "0", message: "Invalid parameters", details: nil))
+                    return
         }
         
         var paymentItems = [PKPaymentSummaryItem]()
