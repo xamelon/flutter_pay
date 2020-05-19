@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.Environment
 import androidx.annotation.NonNull;
 import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.util.ArrayUtils
 import com.google.android.gms.wallet.*
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -124,8 +125,8 @@ public class FlutterPayPlugin: FlutterPlugin, MethodCallHandler, PluginRegistry.
     return cardPaymentMethod
   }
 
-  private fun getCardPaymentMethod(gateway: String, merchantID: String): JSONObject {
-    val cardPaymentMethod = getBaseCardPaymentMethod()
+  private fun getCardPaymentMethod(gateway: String, merchantID: String, allowedPaymentNetworks: List<String>? = null): JSONObject {
+    val cardPaymentMethod = getBaseCardPaymentMethod(allowedPaymentNetworks)
     val tokenizationOptions = getGatewayJsonTokenizationType(gateway, merchantID)
     cardPaymentMethod.put("tokenizationSpecification", tokenizationOptions)
     return cardPaymentMethod
@@ -146,6 +147,7 @@ public class FlutterPayPlugin: FlutterPlugin, MethodCallHandler, PluginRegistry.
     val countryCode = args["countryCode"] as? String
     val merchantName = args["merchantName"] as? String
     val items = args["items"] as? List<Map<String, String>>
+    val allowedPaymentNetworks = args["allowedPaymentNetworks"] as List<String>
 
     var totalPrice: Double = 0.0
     if(items != null) {
@@ -155,6 +157,11 @@ public class FlutterPayPlugin: FlutterPlugin, MethodCallHandler, PluginRegistry.
           totalPrice += price
         }
       }
+    }
+
+    val paymentNetworks: List<String>
+    if(allowedPaymentNetworks.count() > 0) {
+      paymentNetworks = allowedPaymentNetworks.mapNotNull { decodePaymentNetwork(it) }
     }
 
     if(totalPrice <= 0.0) {
@@ -172,7 +179,7 @@ public class FlutterPayPlugin: FlutterPlugin, MethodCallHandler, PluginRegistry.
             .put("merchantInfo", merchantInfo)
             .put("emailRequired", false)
             .put("transactionInfo", getTransactionInfo(totalPrice, currencyCode, countryCode))
-            .put("allowedPaymentMethods", JSONArray().put(getCardPaymentMethod(gateway, merchantID)))
+            .put("allowedPaymentMethods", JSONArray().put(getCardPaymentMethod(gateway, merchantID, allowedPaymentNetworks)))
 
     val paymentDataRequest = PaymentDataRequest.fromJson(paymentRequestJson.toString(4))
     var request = PaymentDataRequest.newBuilder()

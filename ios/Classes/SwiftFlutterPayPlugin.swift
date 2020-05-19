@@ -47,6 +47,7 @@ public class SwiftFlutterPayPlugin: NSObject, FlutterPlugin {
                 let merchantID = params["merchantIdentifier"] as? String,
                 let currency = params["currencyCode"] as? String,
                 let countryCode = params["countryCode"] as? String,
+                let allowedPaymentNetworks = params["allowedPaymentNetworks"] as? [String],
                 let items = params["items"] as? [[String: String]] else {
                     result(FlutterError(code: "0", message: "Invalid parameters", details: nil))
                     return
@@ -61,6 +62,8 @@ public class SwiftFlutterPayPlugin: NSObject, FlutterPlugin {
             paymentItems.append(item)
         }
         
+        let paymentNetworks = allowedPaymentNetworks.count > 0 ? allowedPaymentNetworks.compactMap { PaymentNetworkHelper.decodePaymentNetwork($0) } : PKPaymentRequest.availableNetworks()
+        
         let paymentRequest = PKPaymentRequest()
         paymentRequest.paymentSummaryItems = paymentItems
         
@@ -68,7 +71,7 @@ public class SwiftFlutterPayPlugin: NSObject, FlutterPlugin {
         paymentRequest.merchantCapabilities = .capability3DS
         paymentRequest.countryCode = countryCode
         paymentRequest.currencyCode = currency
-        paymentRequest.supportedNetworks = [.visa, .masterCard]
+        paymentRequest.supportedNetworks = paymentNetworks
         
         let paymentController = PKPaymentAuthorizationController(paymentRequest: paymentRequest)
         paymentController.delegate = self

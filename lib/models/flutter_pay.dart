@@ -34,6 +34,7 @@ class FlutterPay {
       {String merchantIdentifier,
       String currencyCode,
       String countryCode,
+      List<PaymentNetwork> allowedPaymentNetworks = const [],
       List<PaymentItem> paymentItems,
       String merchantName,
       String gatewayName}) async {
@@ -48,6 +49,8 @@ class FlutterPay {
       "currencyCode": currencyCode,
       "countryCode": countryCode,
       "merchantName": merchantName,
+      "allowedPaymentNetworks":
+          allowedPaymentNetworks.map((p) => p.toJson()).toList(),
       "items": items,
     };
     try {

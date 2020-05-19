@@ -31,6 +31,7 @@ class _MyAppState extends State<MyApp> {
         currencyCode: "RUB",
         countryCode: "RU",
         paymentItems: items,
+        merchantName: "-",
         gatewayName: "_");
   }
 
@@ -42,8 +43,9 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Container(
+          padding: EdgeInsets.all(12.0),
           child: Column(
-              mainAxisAlignment: MainAxisAlignment.space_between,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   this.result,
