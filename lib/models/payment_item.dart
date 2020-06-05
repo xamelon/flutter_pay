@@ -1,4 +1,4 @@
-part of '../flutter_pay.dart';
+part of flutter_pay;
 
 class PaymentItem {
   String name;
@@ -7,7 +7,7 @@ class PaymentItem {
   PaymentItem({this.name, this.price});
 
   Map<String, String> toJson() => {
-    "name": name,
-    "price": "$price",
-  };
+        "name": name,
+        "price": "$price",
+      };
 }

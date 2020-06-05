@@ -1,13 +1,4 @@
-import 'dart:async';
-
-import 'package:flutter/services.dart';
-
-import 'package:flutter_pay/models/payment_item.dart';
-import 'package:flutter_pay/models/flutter_pay_error.dart';
-import 'package:flutter_pay/models/payment_network.dart';
-import 'package:flutter_pay/models/payment_environment.dart';
-
-part of '../flutter_pay.dart';
+part of flutter_pay;
 
 class FlutterPay {
   final MethodChannel _channel = MethodChannel('flutter_pay');
@@ -16,7 +7,6 @@ class FlutterPay {
   ///
   /// See [PaymentEnvironment]
   Future<void> setEnvironment({PaymentEnvironment environment}) async {
-
     Map<String, bool> params = {
       "isTestEnvironment": environment == PaymentEnvironment.Test,
     };

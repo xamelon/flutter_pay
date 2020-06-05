@@ -1,4 +1,4 @@
-part of '../flutter_pay.dart';
+part of flutter_pay;
 
 class FlutterPayError extends Error {
   String description;
