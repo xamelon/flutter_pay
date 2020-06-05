@@ -5,14 +5,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_pay/models/payment_item.dart';
 import 'package:flutter_pay/models/flutter_pay_error.dart';
 import 'package:flutter_pay/models/payment_network.dart';
+import 'package:flutter_pay/models/payment_environment.dart';
 
 class FlutterPay {
   final MethodChannel _channel = MethodChannel('flutter_pay');
 
   /// Switch Google Pay environment
-  Future<void> switchEnvironment({bool isTestEnvironment}) async {
+  Future<void> setEnvironment({PaymentEnvironment environment}) async {
+
     Map<String, bool> params = {
-      "isTestEnvironment": isTestEnvironment
+      "isTestEnvironment": environment == PaymentEnvironment.Test,
     };
     _channel.invokeMethod('switchEnvironment', params);
   }

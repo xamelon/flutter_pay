@@ -1,0 +1,4 @@
+enum PaymentEnvironment {
+  Test,
+  Production
+}
