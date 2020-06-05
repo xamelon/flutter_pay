@@ -77,14 +77,14 @@ public class FlutterPayPlugin: FlutterPlugin, MethodCallHandler, PluginRegistry.
     } else if(call.method == "switchEnvironment") {
       val args = call.arguments as? Map<String, Any>
       if(args is Map<String, Any>) {
-        switchEnvirnoment(args)
+        switchEnvirnoment(args, result)
       }
     } else {
       result.notImplemented()
     }
   }
 
-  private fun switchEnvirnoment(args: Map<String, Any>) {
+  private fun switchEnvirnoment(args: Map<String, Any>, result: Result) {
     val isTestEnvironment = args["isTestEnvironment"] as? Boolean
     if(isTestEnvironment != null) {
       if(isTestEnvironment) {
@@ -94,6 +94,7 @@ public class FlutterPayPlugin: FlutterPlugin, MethodCallHandler, PluginRegistry.
       }
       createPaymentsClient()
     }
+    result.success(true)
   }
 
   private fun getBaseRequest(): JSONObject {
@@ -180,6 +181,8 @@ public class FlutterPayPlugin: FlutterPlugin, MethodCallHandler, PluginRegistry.
     val paymentNetworks: List<String>
     if(allowedPaymentNetworks.count() > 0) {
       paymentNetworks = allowedPaymentNetworks.mapNotNull { decodePaymentNetwork(it) }
+    } else {
+      paymentNetworks = availablePaymentNetworks
     }
 
     if(totalPrice <= 0.0) {
@@ -197,7 +200,7 @@ public class FlutterPayPlugin: FlutterPlugin, MethodCallHandler, PluginRegistry.
             .put("merchantInfo", merchantInfo)
             .put("emailRequired", false)
             .put("transactionInfo", getTransactionInfo(totalPrice, currencyCode, countryCode))
-            .put("allowedPaymentMethods", JSONArray().put(getCardPaymentMethod(gateway, merchantID, allowedPaymentNetworks)))
+            .put("allowedPaymentMethods", JSONArray().put(getCardPaymentMethod(gateway, merchantID, paymentNetworks)))
 
     val paymentDataRequest = PaymentDataRequest.fromJson(paymentRequestJson.toString(4))
     var request = PaymentDataRequest.newBuilder()
@@ -247,8 +250,10 @@ public class FlutterPayPlugin: FlutterPlugin, MethodCallHandler, PluginRegistry.
 
   private fun canMakePaymentsWithActiveCard(args: Map<String, Any>, result: Result) {
     val rawPaymentNetworks = args["paymentNetworks"] as? List<String>
-    val paymentNetworks = rawPaymentNetworks?.mapNotNull { decodePaymentNetwork(it) }
-
+    var paymentNetworks = rawPaymentNetworks?.mapNotNull { decodePaymentNetwork(it) }
+    if(paymentNetworks?.count() == 0) {
+      paymentNetworks = availablePaymentNetworks
+    }
     val baseRequest = getBaseRequest();
     baseRequest.put("allowedPaymentMethods", JSONArray().put(getBaseCardPaymentMethod(paymentNetworks)))
     baseRequest.put("existingPaymentMethodRequired", true)

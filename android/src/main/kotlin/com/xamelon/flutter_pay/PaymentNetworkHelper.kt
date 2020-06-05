@@ -12,3 +12,5 @@ fun decodePaymentNetwork(name: String): String? {
         }
     }
 }
+
+var availablePaymentNetworks: List<String> = listOf("VISA", "MASTERCARD", "DISCOVER", "JCB", "AMEX")
