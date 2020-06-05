@@ -21,6 +21,7 @@ class FlutterPay {
 
   /// Returns true if Apple/ Google Pay is available on device
   Future<bool> get canMakePayments async {
+  Future<bool> canMakePayments() async {
     final bool canMakePayments = await _channel.invokeMethod('canMakePayments');
     return canMakePayments;
   }
