@@ -27,7 +27,7 @@ class _MyAppState extends State<MyApp> {
     ];
 
     flutterPay.makePayment(
-        merchantIdentifier: "_",
+        merchantIdentifier: "merchant.flutterpay.example",
         currencyCode: "RUB",
         countryCode: "RU",
         paymentItems: items,
