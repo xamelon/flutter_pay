@@ -7,10 +7,14 @@ import 'package:flutter_pay/models/flutter_pay_error.dart';
 import 'package:flutter_pay/models/payment_network.dart';
 import 'package:flutter_pay/models/payment_environment.dart';
 
+part of '../flutter_pay.dart';
+
 class FlutterPay {
   final MethodChannel _channel = MethodChannel('flutter_pay');
 
-  /// Switch Google Pay environment
+  /// Switch Google Pay [environment]
+  ///
+  /// See [PaymentEnvironment]
   Future<void> setEnvironment({PaymentEnvironment environment}) async {
 
     Map<String, bool> params = {
@@ -19,16 +23,15 @@ class FlutterPay {
     _channel.invokeMethod('switchEnvironment', params);
   }
 
-  /// Returns true if Apple/ Google Pay is available on device
-  Future<bool> get canMakePayments async {
+  /// Returns `true` if Apple/ Google Pay is available on device
   Future<bool> canMakePayments() async {
     final bool canMakePayments = await _channel.invokeMethod('canMakePayments');
     return canMakePayments;
   }
 
-  /// Returns true if Apple/Google Pay is available on device
-  /// and there is at least one activated card
-  /// with payment networks
+  /// Returns true if Apple/Google Pay is available on device and there is at least one activated card
+  ///
+  /// You can set allowed payment networks in [allowedPaymentNetworks] parameter. See [PaymentNetwork]
   Future<bool> canMakePaymentsWithActiveCard({
     List<PaymentNetwork> allowedPaymentNetworks,
   }) async {
@@ -41,6 +44,15 @@ class FlutterPay {
     return canMakePayments;
   }
 
+  /// Process the payment and returns the token from Apple/Google pay
+  ///
+  /// Can throw [FlutterPayError]
+  ///
+  /// * [merchantIdentifier] - merchant identifier in Apple/Google Pay systems
+  /// * [allowedPaymentNetwork] - List of allowed payment networks. See [PaymentNetwork]
+  /// * [paymentItems] - affects only Apple Pay. See [PaymentItem]
+  /// * [merchantName] - affects only Google Pay. Mercant name which will be displayed to customer
+  /// * [gatewayName] - affects only Google Pay. Gateway name which you are using to make payments
   Future<String> makePayment(
       {String merchantIdentifier,
       String currencyCode,

@@ -1,3 +1,5 @@
+part of '../flutter_pay.dart';
+
 class PaymentItem {
   String name;
   double price;

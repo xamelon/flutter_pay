@@ -1,5 +1,11 @@
-export 'package:flutter_pay/models/payment_item.dart';
-export 'package:flutter_pay/models/flutter_pay.dart';
-export 'package:flutter_pay/models/flutter_pay_error.dart';
-export 'package:flutter_pay/models/payment_network.dart';
-export 'package:flutter_pay/models/payment_environment.dart';
+library flutter_pay;
+
+import 'dart:async';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+
+part 'models/flutter_pay.dart';
+part 'models/flutter_pay_error.dart';
+part 'models/payment_environment.dart';
+part 'models/payment_item.dart';
+part 'models/payment_network.dart';
