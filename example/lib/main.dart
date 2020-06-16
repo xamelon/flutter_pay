@@ -57,7 +57,7 @@ class _MyAppState extends State<MyApp> {
                   child: Text("Can make payments?"),
                   onPressed: () async {
                     try {
-                      bool result = await flutterPay.canMakePayments;
+                      bool result = await flutterPay.canMakePayments();
                       setState(() {
                         this.result = "Can make payments: $result";
                       });
