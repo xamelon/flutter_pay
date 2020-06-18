@@ -1,7 +1,7 @@
 part of flutter_pay;
 
 class FlutterPayError extends Error {
-  String description;
+  final String description;
 
   FlutterPayError({this.description});
 }

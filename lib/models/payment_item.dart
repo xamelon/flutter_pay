@@ -1,8 +1,8 @@
 part of flutter_pay;
 
 class PaymentItem {
-  String name;
-  double price;
+  final String name;
+  final double price;
 
   PaymentItem({this.name, this.price});
 

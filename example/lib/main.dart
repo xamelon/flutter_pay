@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'dart:async';
+import 'dart:io';
 
-import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
+
 import 'package:flutter_pay/flutter_pay.dart';
 
 void main() => runApp(MyApp());
@@ -26,13 +26,31 @@ class _MyAppState extends State<MyApp> {
       PaymentItem(name: "Маргарита 30 см", price: 30.0)
     ];
 
-    flutterPay.makePayment(
+    if (Platform.isAndroid) {
+      flutterPay.makePayment(
+        // https://developers.google.com/pay/api/web/reference/request-objects#gateway
+        gatewayName: "",
+        merchantIdentifier: "",
+        currencyCode: "RUB",
+        countryCode: "RU",
+        paymentItems: items,
+      ).then((v) {
+        print(v);
+      }).catchError((e) {
+        print(e);
+      });
+    } else if (Platform.isIOS) {
+      flutterPay.makePayment(
         merchantIdentifier: "merchant.flutterpay.example",
         currencyCode: "RUB",
         countryCode: "RU",
         paymentItems: items,
-        merchantName: "-",
-        gatewayName: "_");
+      ).then((v) {
+        print(v);
+      }).catchError((e) {
+        print(e);
+      });
+    } else {}
   }
 
   @override
