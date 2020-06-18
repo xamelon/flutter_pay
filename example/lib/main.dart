@@ -26,31 +26,13 @@ class _MyAppState extends State<MyApp> {
       PaymentItem(name: "Маргарита 30 см", price: 30.0)
     ];
 
-    if (Platform.isAndroid) {
-      flutterPay.makePayment(
-        // https://developers.google.com/pay/api/web/reference/request-objects#gateway
-        gatewayName: "",
-        merchantIdentifier: "",
-        currencyCode: "RUB",
-        countryCode: "RU",
-        paymentItems: items,
-      ).then((v) {
-        print(v);
-      }).catchError((e) {
-        print(e);
-      });
-    } else if (Platform.isIOS) {
-      flutterPay.makePayment(
-        merchantIdentifier: "merchant.flutterpay.example",
-        currencyCode: "RUB",
-        countryCode: "RU",
-        paymentItems: items,
-      ).then((v) {
-        print(v);
-      }).catchError((e) {
-        print(e);
-      });
-    } else {}
+    flutterPay.requestPayment(
+      googleParameters: GoogleParameters(gatewayName: "example", gatewayMerchantId: "example_id"),
+      appleParameters: AppleParameters(merchantIdentifier: "merchant.flutterpay.example"),
+      currencyCode: "RUB",
+      countryCode: "RU",
+      paymentItems: items,
+    );
   }
 
   @override

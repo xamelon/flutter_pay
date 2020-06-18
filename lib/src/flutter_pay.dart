@@ -39,38 +39,40 @@ class FlutterPay {
   ///
   /// Can throw [FlutterPayError]
   ///
-  /// * [gatewayName] - affects only Google Pay.
-  /// Gateway name which you are using to make payments.
-  /// * [merchantIdentifier] - merchant identifier in Apple Pay.
-  /// In Google Pay it "gatewayMerchantId".
-  /// * [allowedPaymentNetwork] - List of allowed payment networks.
+  /// * [googleParameters] - options for Google Pay
+  /// * [appleParameters] - options for Apple Pay
+  /// * [allowedPaymentNetworks] - List of allowed payment networks.
   /// See [PaymentNetwork].
   /// * [paymentItems] - affects only Apple Pay. See [PaymentItem]
   /// * [merchantName] - affects only Google Pay.
   /// Mercant name which will be displayed to customer.
-  Future<String> makePayment({
-    String gatewayName,
-    String merchantIdentifier,
+  Future<String> requestPayment({
+    GoogleParameters googleParameters,
+    AppleParameters appleParameters,
     List<PaymentNetwork> allowedPaymentNetworks = const [],
     List<PaymentItem> paymentItems,
     String currencyCode,
     String countryCode,
-    String merchantName,
   }) async {
     var items = paymentItems.map((item) => item.toJson()).toList();
-
-    print("Gateway name: $gatewayName");
-
     var params = <String, dynamic>{
-      "gateway": gatewayName,
-      "merchantIdentifier": merchantIdentifier,
       "currencyCode": currencyCode,
       "countryCode": countryCode,
-      "merchantName": merchantName,
       "allowedPaymentNetworks":
           allowedPaymentNetworks.map((network) => network.getName).toList(),
       "items": items,
     };
+
+    if (Platform.isAndroid && googleParameters != null) {
+      params.addAll(googleParameters.toMap());
+    } else if (Platform.isIOS && appleParameters != null) {
+      params.addAll(appleParameters.toMap());
+    } else {
+      throw FlutterPayError(description: "");
+    }
+
+    print(params);
+
     try {
       dynamic rawPayResponse =
           await _channel.invokeMethod('requestPayment', params);
@@ -80,13 +82,12 @@ class FlutterPay {
       }
       var paymentToken = payResponse["token"];
       var error = payResponse["error"];
-      print("Payment token: $paymentToken");
-      print("Error: $error");
-      if (paymentToken != null) {
+
+      if (paymentToken?.isNotEmpty ?? false) {
         print("Payment token: $paymentToken");
         return paymentToken;
       }
-      if (error != null) {
+      if (error?.isNotEmpty ?? false) {
         throw FlutterPayError(description: error);
       }
     } on PlatformException catch (e) {
