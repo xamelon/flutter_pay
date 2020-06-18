@@ -60,5 +60,6 @@ class PaymentNetwork {
   /// Available only on iOS
   static PaymentNetwork get vPay => PaymentNetwork._("VPay");
 
-  String toJson() => _name.toUpperCase();
+  /// Get payment networks name
+  String get getName => _name.toUpperCase();
 }

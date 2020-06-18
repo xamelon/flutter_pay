@@ -27,7 +27,7 @@ class FlutterPay {
     List<PaymentNetwork> allowedPaymentNetworks,
   }) async {
     var paymentNetworks =
-        allowedPaymentNetworks.map((network) => network.toJson()).toList();
+        allowedPaymentNetworks.map((network) => network.getName).toList();
     var params = <String, dynamic>{"paymentNetworks": paymentNetworks};
 
     final canMakePayments =
@@ -41,12 +41,12 @@ class FlutterPay {
   ///
   /// * [gatewayName] - affects only Google Pay.
   /// Gateway name which you are using to make payments.
-  /// * [merchantIdentifier] - merchant identifier in Apple Pay. 
+  /// * [merchantIdentifier] - merchant identifier in Apple Pay.
   /// In Google Pay it "gatewayMerchantId".
-  /// * [allowedPaymentNetwork] - List of allowed payment networks. 
+  /// * [allowedPaymentNetwork] - List of allowed payment networks.
   /// See [PaymentNetwork].
   /// * [paymentItems] - affects only Apple Pay. See [PaymentItem]
-  /// * [merchantName] - affects only Google Pay. 
+  /// * [merchantName] - affects only Google Pay.
   /// Mercant name which will be displayed to customer.
   Future<String> makePayment({
     String gatewayName,
@@ -68,7 +68,7 @@ class FlutterPay {
       "countryCode": countryCode,
       "merchantName": merchantName,
       "allowedPaymentNetworks":
-          allowedPaymentNetworks.map((p) => p.toJson()).toList(),
+          allowedPaymentNetworks.map((network) => network.getName).toList(),
       "items": items,
     };
     try {
