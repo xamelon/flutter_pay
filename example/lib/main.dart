@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import 'package:flutter_pay/flutter_pay.dart';
@@ -26,9 +24,15 @@ class _MyAppState extends State<MyApp> {
       PaymentItem(name: "Маргарита 30 см", price: 30.0)
     ];
 
+    flutterPay.setEnvironment(environment: PaymentEnvironment.Test);
+
     flutterPay.requestPayment(
-      googleParameters: GoogleParameters(gatewayName: "example", gatewayMerchantId: "example_id"),
-      appleParameters: AppleParameters(merchantIdentifier: "merchant.flutterpay.example"),
+      googleParameters: GoogleParameters(
+        gatewayName: "example",
+        gatewayMerchantId: "example_id",
+      ),
+      appleParameters:
+          AppleParameters(merchantIdentifier: "merchant.flutterpay.example"),
       currencyCode: "RUB",
       countryCode: "RU",
       paymentItems: items,

@@ -106,7 +106,7 @@ public class FlutterPayPlugin: FlutterPlugin, MethodCallHandler, PluginRegistry.
   private fun getGatewayJsonTokenizationType(gatewayName: String, gatewayMerchantID: String): JSONObject {
     return JSONObject().put("type", "PAYMENT_GATEWAY")
             .put("parameters", JSONObject()
-                    .put("gatewayName", gatewayName)
+                    .put("gateway", gatewayName)
                     .put("gatewayMerchantId", gatewayMerchantID))
   }
 
@@ -153,7 +153,7 @@ public class FlutterPayPlugin: FlutterPlugin, MethodCallHandler, PluginRegistry.
 
   private fun getTransactionInfo(totalPrice: Double, currencyCode: String, countryCode: String): JSONObject {
     return JSONObject()
-            .put("totalPrice", totalPrice.toString())
+            .put("totalPrice", totalPrice.toInt().toString())
             .put("totalPriceStatus", "FINAL")
             .put("countryCode", countryCode)
             .put("currencyCode", currencyCode)
@@ -194,7 +194,9 @@ public class FlutterPayPlugin: FlutterPlugin, MethodCallHandler, PluginRegistry.
       return
     }
 
-    val merchantInfo = JSONObject().putOpt("merchantName", merchantName)
+    var merchantInfo = JSONObject().putOpt("merchantName", merchantName)
+
+    if(merchantInfo.length() == 0) merchantInfo = null
 
     val paymentRequestJson = getBaseRequest()
             .putOpt("merchantInfo", merchantInfo)

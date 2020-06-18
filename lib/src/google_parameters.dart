@@ -5,11 +5,13 @@ class GoogleParameters {
   final String gatewayName;
   final String gatewayMerchantId;
   final Map<String, dynamic> gatewayArgs;
+  final String merchantName;
 
   GoogleParameters({
     @required this.gatewayName,
     this.gatewayMerchantId,
     this.gatewayArgs,
+    this.merchantName,
   }) : assert(
           gatewayMerchantId != null || gatewayArgs != null,
           throw FlutterPayError(description: ""),
@@ -18,6 +20,7 @@ class GoogleParameters {
   Map<String, dynamic> toMap() {
     var map = {
       'gatewayName': gatewayName,
+      'merchantName': merchantName,
     };
 
     if(gatewayMerchantId != null) {
