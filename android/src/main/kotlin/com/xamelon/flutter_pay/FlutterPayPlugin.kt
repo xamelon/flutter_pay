@@ -60,27 +60,22 @@ public class FlutterPayPlugin : FlutterPlugin, MethodCallHandler, PluginRegistry
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
         this.lastResult = result
-        if (call.method == "getPlatformVersion") {
-            result.success("Android ${android.os.Build.VERSION.RELEASE}")
-        } else if (call.method == "canMakePayments") {
-            canMakePayments(result)
-        } else if (call.method == "canMakePaymentsWithActiveCard") {
-            val args = call.arguments as? Map<String, Any>
-            if (args is Map<String, Any>) {
-                canMakePaymentsWithActiveCard(args, result)
+
+        val args = call.arguments as? Map<String, Any>
+        if (args !is Map<String, Any>) {
+            this.lastResult?.error("invalidParameters", "Invalid parameters", "Invalid parameters")
+            return
+        }
+
+        when (call.method) {
+            "getPlatformVersion" -> result.success("Android ${android.os.Build.VERSION.RELEASE}")
+            "canMakePayments" -> canMakePayments(result)
+            "canMakePaymentsWithActiveCard" -> canMakePaymentsWithActiveCard(args, result)
+            "requestPayment" -> requestPayment(args)
+            "switchEnvironment" -> switchEnvirnoment(args, result)
+            else -> {
+                result.notImplemented()
             }
-        } else if (call.method == "requestPayment") {
-            val args = call.arguments as? Map<String, Any>
-            if (args is Map) {
-                requestPayment(args)
-            }
-        } else if (call.method == "switchEnvironment") {
-            val args = call.arguments as? Map<String, Any>
-            if (args is Map<String, Any>) {
-                switchEnvirnoment(args, result)
-            }
-        } else {
-            result.notImplemented()
         }
     }
 

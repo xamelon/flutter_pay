@@ -89,6 +89,7 @@ class FlutterPay {
         return "";
       }
     } on PlatformException catch (error) {
+      if(error.code == "userCancelledError") return "";
       throw FlutterPayError(code: error.code, description: error.message);
     }
   }
