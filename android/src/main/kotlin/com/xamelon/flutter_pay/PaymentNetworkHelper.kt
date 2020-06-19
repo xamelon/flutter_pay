@@ -1,7 +1,7 @@
 package com.xamelon.flutter_pay
 
 fun decodePaymentNetwork(name: String): String? {
-    when(name) {
+    when (name) {
         "VISA" -> return "VISA"
         "MASTERCARD" -> return "MASTERCARD"
         "DISCOVER" -> return "DISCOVER"
