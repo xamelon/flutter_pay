@@ -34,7 +34,7 @@ public class SwiftFlutterPayPlugin: NSObject, FlutterPlugin {
     func canMakePaymentsWithActiveCard(arguments: Any? = nil, result: @escaping FlutterResult) {
         guard let params = arguments as? [String: Any],
             let paymentNetworks = params["paymentNetworks"] as? [String] else {
-                result(FlutterError(code: "0", message: "Invalid parameters", details: nil))
+                result(FlutterError(code: "invalidParameters", message: "Invalid parameters", details: nil))
                 return;
         }
         let pkPaymentNetworks: [PKPaymentNetwork] = paymentNetworks.compactMap({ PaymentNetworkHelper.decodePaymentNetwork($0) })
@@ -49,7 +49,7 @@ public class SwiftFlutterPayPlugin: NSObject, FlutterPlugin {
                 let countryCode = params["countryCode"] as? String,
                 let allowedPaymentNetworks = params["allowedPaymentNetworks"] as? [String],
                 let items = params["items"] as? [[String: String]] else {
-                    result(FlutterError(code: "0", message: "Invalid parameters", details: nil))
+                    result(FlutterError(code: "invalidParameters", message: "Invalid parameters", details: nil))
                     return
         }
         
@@ -81,21 +81,11 @@ public class SwiftFlutterPayPlugin: NSObject, FlutterPlugin {
     
     private func paymentResult(pkPayment: PKPayment?) {
         if let result = flutterResult {
-            var value: [String: String?]
-            
             if let payment = pkPayment {
                 let token = String(data: payment.token.paymentData, encoding: .utf8)
-                value = [
-                    "token": token,
-                    "error": nil
-                ]
-                result(value)
+                result(["token": token])
             } else {
-                value = [
-                    "token": nil,
-                    "error": "Can't process payment"
-                ]
-                result(value)
+                result(FlutterError(code: "userCancelledError", message: "User cancelled the payment", details: nil))
             }
             flutterResult = nil
         }

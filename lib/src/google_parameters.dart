@@ -5,26 +5,29 @@ class GoogleParameters {
   final String gatewayName;
   final String gatewayMerchantId;
   final Map<String, dynamic> gatewayArgs;
+  final String merchantId;
   final String merchantName;
 
   GoogleParameters({
     @required this.gatewayName,
     this.gatewayMerchantId,
     this.gatewayArgs,
+    this.merchantId,
     this.merchantName,
   }) : assert(
-          gatewayMerchantId != null || gatewayArgs != null,
-          throw FlutterPayError(description: ""),
+          ((gatewayMerchantId != null) ^ (gatewayArgs != null)),
+          "You can not use gatewayMerchantId and gatewayArgs at the same time",
         );
 
   Map<String, dynamic> toMap() {
     var map = {
       'gatewayName': gatewayName,
+      'merchantId': merchantId,
       'merchantName': merchantName,
     };
 
-    if(gatewayMerchantId != null) {
-       map.addAll({'gatewayMerchantId': gatewayMerchantId});
+    if (gatewayMerchantId != null) {
+      map.addAll({'gatewayMerchantId': gatewayMerchantId});
     } else {
       map.addAll(gatewayArgs);
     }

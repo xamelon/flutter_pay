@@ -6,7 +6,7 @@ class FlutterPay {
   /// Switch Google Pay [environment]
   ///
   /// See [PaymentEnvironment]
-  Future<void> setEnvironment({PaymentEnvironment environment}) async {
+  void setEnvironment({PaymentEnvironment environment}) {
     var params = <String, bool>{
       "isTestEnvironment": environment == PaymentEnvironment.Test,
     };
@@ -51,6 +51,7 @@ class FlutterPay {
     AppleParameters appleParameters,
     List<PaymentNetwork> allowedPaymentNetworks = const [],
     List<PaymentItem> paymentItems,
+    bool emailRequired = false,
     String currencyCode,
     String countryCode,
   }) async {
@@ -61,6 +62,7 @@ class FlutterPay {
       "allowedPaymentNetworks":
           allowedPaymentNetworks.map((network) => network.getName).toList(),
       "items": items,
+      "emailRequired": emailRequired,
     };
 
     if (Platform.isAndroid && googleParameters != null) {
@@ -71,28 +73,23 @@ class FlutterPay {
       throw FlutterPayError(description: "");
     }
 
-    print(params);
-
     try {
-      dynamic rawPayResponse =
-          await _channel.invokeMethod('requestPayment', params);
-      var payResponse = Map<String, String>.from(rawPayResponse);
+      var response = await _channel.invokeMethod('requestPayment', params);
+      var payResponse = Map<String, String>.from(response);
       if (payResponse == null) {
         throw FlutterPayError(description: "Pay response cannot be parsed");
       }
-      var paymentToken = payResponse["token"];
-      var error = payResponse["error"];
 
+      var paymentToken = payResponse["token"];
       if (paymentToken?.isNotEmpty ?? false) {
         print("Payment token: $paymentToken");
         return paymentToken;
+      } else {
+        print("Payment token: null");
+        return "";
       }
-      if (error?.isNotEmpty ?? false) {
-        throw FlutterPayError(description: error);
-      }
-    } on PlatformException catch (e) {
-      throw FlutterPayError(description: e.message);
+    } on PlatformException catch (error) {
+      throw FlutterPayError(code: error.code, description: error.message);
     }
-    return "";
   }
 }
