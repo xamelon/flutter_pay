@@ -1,13 +1,9 @@
 package com.xamelon.flutter_pay
 
 import android.app.Activity
-import android.app.Instrumentation
-import android.content.Context
 import android.content.Intent
-import android.os.Environment
-import androidx.annotation.NonNull;
+import androidx.annotation.NonNull
 import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.common.util.ArrayUtils
 import com.google.android.gms.wallet.*
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -20,21 +16,20 @@ import io.flutter.plugin.common.PluginRegistry
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import org.json.JSONArray
 import org.json.JSONObject
-import java.util.*
 
 /** FlutterPayPlugin */
-public class FlutterPayPlugin : FlutterPlugin, MethodCallHandler, PluginRegistry.ActivityResultListener, ActivityAware {
+class FlutterPayPlugin : FlutterPlugin, MethodCallHandler, PluginRegistry.ActivityResultListener, ActivityAware {
 
     private lateinit var googlePayClient: PaymentsClient
     private lateinit var activity: Activity
     private var environment = WalletConstants.ENVIRONMENT_PRODUCTION
 
-    private final val LOAD_PAYMENT_DATA_REQUEST_CODE = 991
+    private val LOAD_PAYMENT_DATA_REQUEST_CODE = 991
 
     private var lastResult: Result? = null
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-        val channel = MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), "flutter_pay")
+        val channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter_pay")
         channel.setMethodCallHandler(this)
     }
 
@@ -50,7 +45,7 @@ public class FlutterPayPlugin : FlutterPlugin, MethodCallHandler, PluginRegistry
         @JvmStatic
         fun registerWith(registrar: Registrar) {
             val channel = MethodChannel(registrar.messenger(), "flutter_pay")
-            var plugin = FlutterPayPlugin()
+            val plugin = FlutterPayPlugin()
             channel.setMethodCallHandler(plugin)
             registrar.addActivityResultListener(plugin)
             plugin.activity = registrar.activity()
@@ -72,21 +67,22 @@ public class FlutterPayPlugin : FlutterPlugin, MethodCallHandler, PluginRegistry
             "canMakePayments" -> canMakePayments(result)
             "canMakePaymentsWithActiveCard" -> canMakePaymentsWithActiveCard(args, result)
             "requestPayment" -> requestPayment(args)
-            "switchEnvironment" -> switchEnvirnoment(args, result)
+            "switchEnvironment" -> switchEnvironment(args, result)
             else -> {
                 result.notImplemented()
             }
         }
     }
 
-    private fun switchEnvirnoment(args: Map<String, Any>, result: Result) {
+    private fun switchEnvironment(args: Map<String, Any>, result: Result) {
         val isTestEnvironment = args["isTestEnvironment"] as? Boolean
         if (isTestEnvironment != null) {
-            if (isTestEnvironment) {
-                environment = WalletConstants.ENVIRONMENT_TEST;
+            environment = if (isTestEnvironment) {
+                WalletConstants.ENVIRONMENT_TEST
             } else {
-                environment = WalletConstants.ENVIRONMENT_PRODUCTION;
+                WalletConstants.ENVIRONMENT_PRODUCTION
             }
+            print("Is test Environment: $isTestEnvironment\n")
             createPaymentsClient()
         }
         result.success(true)
@@ -122,13 +118,12 @@ public class FlutterPayPlugin : FlutterPlugin, MethodCallHandler, PluginRegistry
     }
 
     private fun getBaseCardPaymentMethod(allowedPaymentNetworks: List<String>? = null): JSONObject {
-        val cardPaymentMethod = JSONObject().put("type", "CARD");
+        val cardPaymentMethod = JSONObject().put("type", "CARD")
 
-        val cardNetworks: JSONArray
-        if (allowedPaymentNetworks == null) {
-            cardNetworks = getAllowedCardSystems()
+        val cardNetworks: JSONArray = if (allowedPaymentNetworks == null) {
+            getAllowedCardSystems()
         } else {
-            cardNetworks = JSONArray(allowedPaymentNetworks)
+            JSONArray(allowedPaymentNetworks)
         }
 
         val params = JSONObject()
@@ -148,7 +143,7 @@ public class FlutterPayPlugin : FlutterPlugin, MethodCallHandler, PluginRegistry
 
     private fun getTransactionInfo(totalPrice: Double, currencyCode: String, countryCode: String): JSONObject {
         return JSONObject()
-                .put("totalPrice", totalPrice.toInt().toString())
+                .put("totalPrice", totalPrice.toString())
                 .put("totalPriceStatus", "FINAL")
                 .put("countryCode", countryCode)
                 .put("currencyCode", currencyCode)
@@ -165,21 +160,18 @@ public class FlutterPayPlugin : FlutterPlugin, MethodCallHandler, PluginRegistry
         val merchantId = args["merchantId"] as? String
         val merchantName = args["merchantName"] as? String
 
-        var totalPrice: Double = 0.0
-        if (items != null) {
-            items.forEach {
-                val price = it["price"]?.toDouble()
-                if (price != null) {
-                    totalPrice += price
-                }
+        var totalPrice = 0.0
+        items?.forEach {
+            val price = it["price"]?.toDouble()
+            if (price != null) {
+                totalPrice += price
             }
         }
 
-        val paymentNetworks: List<String>
-        if (allowedPaymentNetworks.count() > 0) {
-            paymentNetworks = allowedPaymentNetworks.mapNotNull { decodePaymentNetwork(it) }
+        val paymentNetworks: List<String> = if (allowedPaymentNetworks.count() > 0) {
+            allowedPaymentNetworks.mapNotNull { decodePaymentNetwork(it) }
         } else {
-            paymentNetworks = availablePaymentNetworks
+            availablePaymentNetworks
         }
 
         if (totalPrice <= 0.0) {
@@ -206,7 +198,7 @@ public class FlutterPayPlugin : FlutterPlugin, MethodCallHandler, PluginRegistry
         val paymentDataRequest = PaymentDataRequest.fromJson(paymentRequestJson.toString(4))
 
         print("phone required: ${paymentDataRequest.isPhoneNumberRequired}\n")
-        print("Payment data request: ${paymentDataRequest.toJson()}")
+        print("Payment data request: ${paymentDataRequest.toJson()}\n")
 
         if (paymentDataRequest != null) {
             val task = googlePayClient
@@ -216,7 +208,7 @@ public class FlutterPayPlugin : FlutterPlugin, MethodCallHandler, PluginRegistry
                             print("${it.getResult(ApiException::class.java)}")
                         } catch (e: ApiException) {
 
-                            print("Tortik:  e.message")
+                            print("Tortik:  ${e.message}\n")
                         }
                     }
             AutoResolveHelper.resolveTask(task, this.activity, LOAD_PAYMENT_DATA_REQUEST_CODE)
@@ -251,7 +243,7 @@ public class FlutterPayPlugin : FlutterPlugin, MethodCallHandler, PluginRegistry
         if (paymentNetworks?.count() == 0) {
             paymentNetworks = availablePaymentNetworks
         }
-        val baseRequest = getBaseRequest();
+        val baseRequest = getBaseRequest()
         baseRequest.put("allowedPaymentMethods", JSONArray().put(getBaseCardPaymentMethod(paymentNetworks)))
         baseRequest.put("existingPaymentMethodRequired", true)
 
@@ -272,19 +264,15 @@ public class FlutterPayPlugin : FlutterPlugin, MethodCallHandler, PluginRegistry
         }
     }
 
-
-    override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
-    }
-
+    override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {}
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
-
         if (requestCode == LOAD_PAYMENT_DATA_REQUEST_CODE) {
-            print("Result code: $resultCode")
+            print("Result code: $resultCode\n")
             if (resultCode == Activity.RESULT_OK) {
                 if (data != null) {
                     val paymentData = PaymentData.getFromIntent(data)
-                    print("Payment data: ${paymentData?.toJson()}")
+                    print("Payment data: ${paymentData?.toJson()}\n")
 
                     if (paymentData != null) {
                         val paymentDataString = paymentData.toJson()
@@ -304,7 +292,7 @@ public class FlutterPayPlugin : FlutterPlugin, MethodCallHandler, PluginRegistry
                 }
 
             } else if (resultCode == Activity.RESULT_CANCELED) {
-                this.lastResult?.error("userCancelledError", "User cancelled the payment", null);
+                this.lastResult?.error("userCancelledError", "User cancelled the payment", null)
             }
 
             this.lastResult = null
@@ -312,20 +300,15 @@ public class FlutterPayPlugin : FlutterPlugin, MethodCallHandler, PluginRegistry
         return false
     }
 
-
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         this.activity = binding.activity
         binding.addActivityResultListener(this)
         createPaymentsClient()
     }
 
-    override fun onDetachedFromActivity() {
+    override fun onDetachedFromActivity() {}
 
-    }
-
-    override fun onDetachedFromActivityForConfigChanges() {
-
-    }
+    override fun onDetachedFromActivityForConfigChanges() {}
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
         this.activity = binding.activity

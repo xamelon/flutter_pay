@@ -8,6 +8,6 @@ class PaymentItem {
 
   Map<String, String> toJson() => {
         "name": name,
-        "price": "$price",
+        "price": price.toStringAsFixed(2),
       };
 }
