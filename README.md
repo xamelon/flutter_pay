@@ -41,27 +41,30 @@ bool isAvailable = await flutterPay.canMakePaymentsWithActiveCard(
 );
 ```
 
-To make payment is ```makePayment``` method. This function will return to you token that you need to send to your gateway to complete payment.
+To make payment is ```requestPayment``` method. This function will return to you token that you need to send to your gateway to complete payment.
 Example: 
 ```dart
 import 'package:flutter_pay/flutter_pay.dart';
 
+PaymentItem item = PaymentItem(name: "T-Shirt", price: 2.98);
+
 FlutterPay flutterPay = FlutterPay();
 
-PaymentItem item = PaymentItem(name: "T-Shirt", price: 10.98);
+flutterPay.setEnvironment(environment: PaymentEnvironment.Test);
 
-String token = await flutterPay.makePayment(
-	merchantIdentifier: "merchant.com.flutterPay",
-	currencyCode: "RUB",
-	countryCode: "RU",
-	allowedPaymentNetworks: [
-		PaymentNetwork.visa, 
-		PaymentNetwork.masterCard,
-	],
-	paymentItems: [item],
-	merchantName: "Super Shop", 
-	gatewayName: "stripe",
-);
+String token = await flutterPay.requestPayment(
+      googleParameters: GoogleParameters(
+        gatewayName: "example",
+        gatewayMerchantId: "example_id",
+		merchantId: "example_merchant_id",
+		merchantName: "exampleMerchantName",
+      ),
+      appleParameters:
+          AppleParameters(merchantIdentifier: "merchant.flutterpay.example"),
+      currencyCode: "USD",
+      countryCode: "US",
+      paymentItems: items,
+    );
 ```
 
 Note that some arguments affects only Apple Pay or Google Pay. For example, **paymentItems** affects only Apple Pay. And the last item is used for grand total label. 

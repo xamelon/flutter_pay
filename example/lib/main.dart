@@ -21,7 +21,7 @@ class _MyAppState extends State<MyApp> {
 
   void makePayment() async {
     List<PaymentItem> items = [
-      PaymentItem(name: "Маргарита 30 см", price: 30.0)
+      PaymentItem(name: "T-Shirt", price: 2.98)
     ];
 
     flutterPay.setEnvironment(environment: PaymentEnvironment.Test);
@@ -33,8 +33,8 @@ class _MyAppState extends State<MyApp> {
       ),
       appleParameters:
           AppleParameters(merchantIdentifier: "merchant.flutterpay.example"),
-      currencyCode: "RUB",
-      countryCode: "RU",
+      currencyCode: "USD",
+      countryCode: "US",
       paymentItems: items,
     );
   }
