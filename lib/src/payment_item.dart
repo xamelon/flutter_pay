@@ -1,13 +1,13 @@
 part of flutter_pay;
 
 class PaymentItem {
-  String name;
-  double price;
+  final String name;
+  final double price;
 
   PaymentItem({this.name, this.price});
 
   Map<String, String> toJson() => {
         "name": name,
-        "price": "$price",
+        "price": price.toStringAsFixed(2),
       };
 }

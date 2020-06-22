@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
 
-import 'package:flutter/services.dart';
 import 'package:flutter_pay/flutter_pay.dart';
 
 void main() => runApp(MyApp());
@@ -23,16 +21,22 @@ class _MyAppState extends State<MyApp> {
 
   void makePayment() async {
     List<PaymentItem> items = [
-      PaymentItem(name: "Маргарита 30 см", price: 30.0)
+      PaymentItem(name: "T-Shirt", price: 2.98)
     ];
 
-    flutterPay.makePayment(
-        merchantIdentifier: "merchant.flutterpay.example",
-        currencyCode: "RUB",
-        countryCode: "RU",
-        paymentItems: items,
-        merchantName: "-",
-        gatewayName: "_");
+    flutterPay.setEnvironment(environment: PaymentEnvironment.Test);
+
+    flutterPay.requestPayment(
+      googleParameters: GoogleParameters(
+        gatewayName: "example",
+        gatewayMerchantId: "example_id",
+      ),
+      appleParameters:
+          AppleParameters(merchantIdentifier: "merchant.flutterpay.example"),
+      currencyCode: "USD",
+      countryCode: "US",
+      paymentItems: items,
+    );
   }
 
   @override
