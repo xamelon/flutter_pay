@@ -57,17 +57,18 @@ class FlutterPayPlugin : FlutterPlugin, MethodCallHandler, PluginRegistry.Activi
         this.lastResult = result
 
         val args = call.arguments as? Map<String, Any>
-        if (args !is Map<String, Any>) {
+        val method = call.method as String
+        if (args !is Map<String, Any> && (method == "canMakePaymentsWithActiveCard" || method == "requestPayment" || method == "switchEnvironment" )) {
             this.lastResult?.error("invalidParameters", "Invalid parameters", "Invalid parameters")
             return
-        }
+        } 
 
-        when (call.method) {
+        when (method) {
             "getPlatformVersion" -> result.success("Android ${android.os.Build.VERSION.RELEASE}")
             "canMakePayments" -> canMakePayments(result)
-            "canMakePaymentsWithActiveCard" -> canMakePaymentsWithActiveCard(args, result)
-            "requestPayment" -> requestPayment(args)
-            "switchEnvironment" -> switchEnvironment(args, result)
+            "canMakePaymentsWithActiveCard" -> canMakePaymentsWithActiveCard(call.arguments as Map<String, Any>, result)
+            "requestPayment" -> requestPayment(call.arguments as Map<String, Any>)
+            "switchEnvironment" -> switchEnvironment(call.arguments as Map<String, Any>, result)
             else -> {
                 result.notImplemented()
             }
