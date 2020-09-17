@@ -8,6 +8,7 @@ class GoogleParameters {
   final String merchantId;
   final String merchantName;
 
+
   GoogleParameters({
     @required this.gatewayName,
     this.gatewayMerchantId,
