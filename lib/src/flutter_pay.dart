@@ -52,7 +52,6 @@ class FlutterPay {
     GoogleParameters googleParameters,
     AppleParameters appleParameters,
     List<PaymentNetwork> allowedPaymentNetworks = const [],
-    List<CardAuthMethods> allowedCardAuthMethods = const [],
     List<PaymentItem> paymentItems,
     bool emailRequired = false,
     String currencyCode,
@@ -64,8 +63,6 @@ class FlutterPay {
       "countryCode": countryCode,
       "allowedPaymentNetworks":
           allowedPaymentNetworks.map((network) => network.getName).toList(),
-      "allowedAuthMethods":
-          allowedCardAuthMethods.map((network) => network.getName).toList(),
       "items": items,
       "emailRequired": emailRequired,
     };

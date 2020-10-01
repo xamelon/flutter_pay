@@ -7,7 +7,7 @@ class GoogleParameters {
   final Map<String, dynamic> gatewayArgs;
   final String merchantId;
   final String merchantName;
-
+  final List<CardAuthMethods> allowedCardAuthMethods;
 
   GoogleParameters({
     @required this.gatewayName,
@@ -15,6 +15,7 @@ class GoogleParameters {
     this.gatewayArgs,
     this.merchantId,
     this.merchantName,
+    this.allowedCardAuthMethods,
   }) : assert(
           ((gatewayMerchantId != null) ^ (gatewayArgs != null)),
           "You can not use gatewayMerchantId and gatewayArgs at the same time",
@@ -25,6 +26,8 @@ class GoogleParameters {
       'gatewayName': gatewayName,
       'merchantId': merchantId,
       'merchantName': merchantName,
+      "allowedAuthMethods":
+          allowedCardAuthMethods.map((method) => method.getName).toList(),
     };
 
     if (gatewayMerchantId != null) {
