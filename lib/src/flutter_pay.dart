@@ -95,6 +95,10 @@ class FlutterPay {
         print(error.message);
         return "";
       }
+      if (error.code == "paymentError") {
+        print(error.message);
+        return "";
+      }
       throw FlutterPayError(code: error.code, description: error.message);
     }
   }

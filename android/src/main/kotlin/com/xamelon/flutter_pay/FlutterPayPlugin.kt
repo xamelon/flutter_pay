@@ -309,7 +309,13 @@ class FlutterPayPlugin : FlutterPlugin, MethodCallHandler, PluginRegistry.Activi
                 }
 
             } else if (resultCode == Activity.RESULT_CANCELED) {
+                print("Activity.RESULT_CANCELED")
                 this.lastResult?.error("userCancelledError", "User cancelled the payment", null)
+            } else if (resultCode == AutoResolveHelper.RESULT_ERROR) {
+                val status = AutoResolveHelper.getStatusFromIntent(data);
+                print("AutoResolveHelper.RESULT_ERROR")
+                print("Status: ${status?.toString()}")
+                this.lastResult?.error("paymentError", "Google Pay returned payment error", null)
             }
 
             this.lastResult = null
