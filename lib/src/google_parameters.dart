@@ -15,8 +15,9 @@ class GoogleParameters {
     this.gatewayArgs,
     this.merchantId,
     this.merchantName,
-    this.allowedCardAuthMethods,
-  }) : assert(
+    List<CardAuthMethods> allowedCardAuthMethods,
+  })  : this.allowedCardAuthMethods = allowedCardAuthMethods ?? [],
+        assert(
           ((gatewayMerchantId != null) ^ (gatewayArgs != null)),
           "You can not use gatewayMerchantId and gatewayArgs at the same time",
         );
