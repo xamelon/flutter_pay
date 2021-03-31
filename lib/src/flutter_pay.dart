@@ -43,6 +43,8 @@ class FlutterPay {
   /// * [appleParameters] - options for Apple Pay
   /// * [allowedPaymentNetworks] - List of allowed payment networks.
   /// See [PaymentNetwork].
+  /// * [allowedCardAuthMethods] - List of allowed authenticaion methods
+  /// methods for Google Pay.
   /// * [paymentItems] - affects only Apple Pay. See [PaymentItem]
   /// * [merchantName] - affects only Google Pay.
   /// Mercant name which will be displayed to customer.
@@ -90,6 +92,10 @@ class FlutterPay {
       }
     } on PlatformException catch (error) {
       if (error.code == "userCancelledError") {
+        print(error.message);
+        return "";
+      }
+      if (error.code == "paymentError") {
         print(error.message);
         return "";
       }

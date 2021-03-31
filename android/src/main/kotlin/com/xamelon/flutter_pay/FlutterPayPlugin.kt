@@ -118,7 +118,7 @@ class FlutterPayPlugin : FlutterPlugin, MethodCallHandler, PluginRegistry.Activi
                 .put("CRYPTOGRAM_3DS")
     }
 
-    private fun getBaseCardPaymentMethod(allowedPaymentNetworks: List<String>? = null): JSONObject {
+    private fun getBaseCardPaymentMethod(allowedPaymentNetworks: List<String>? = null, allowedAuthMethods: List<String>? = null): JSONObject {
         val cardPaymentMethod = JSONObject().put("type", "CARD")
 
         val cardNetworks: JSONArray = if (allowedPaymentNetworks == null) {
@@ -127,16 +127,24 @@ class FlutterPayPlugin : FlutterPlugin, MethodCallHandler, PluginRegistry.Activi
             JSONArray(allowedPaymentNetworks)
         }
 
+        val authMethods: JSONArray = if (allowedAuthMethods == null) {
+            getAllowedCardAuthMethods()
+        } else {
+            JSONArray(allowedAuthMethods)
+        }
+
+        print("getBaseCardPaymentMethod, authMethods: ${authMethods}\n")
+
         val params = JSONObject()
-                .put("allowedAuthMethods", getAllowedCardAuthMethods())
+                .put("allowedAuthMethods", authMethods)
                 .put("allowedCardNetworks", cardNetworks)
 
         cardPaymentMethod.put("parameters", params)
         return cardPaymentMethod
     }
 
-    private fun getCardPaymentMethod(gatewayName: String, gatewayMerchantID: String, allowedPaymentNetworks: List<String>? = null): JSONObject {
-        val cardPaymentMethod = getBaseCardPaymentMethod(allowedPaymentNetworks)
+    private fun getCardPaymentMethod(gatewayName: String, gatewayMerchantID: String, allowedPaymentNetworks: List<String>? = null, allowedAuthMethods: List<String>? = null): JSONObject {
+        val cardPaymentMethod = getBaseCardPaymentMethod(allowedPaymentNetworks, allowedAuthMethods)
         val tokenizationOptions = getGatewayJsonTokenizationType(gatewayName, gatewayMerchantID)
         cardPaymentMethod.put("tokenizationSpecification", tokenizationOptions)
         return cardPaymentMethod
@@ -153,6 +161,7 @@ class FlutterPayPlugin : FlutterPlugin, MethodCallHandler, PluginRegistry.Activi
     private fun requestPayment(args: Map<String, Any>) {
         val items = args["items"] as? List<Map<String, String>>
         val allowedPaymentNetworks = args["allowedPaymentNetworks"] as List<String>
+        val allowedAuthMethods = args["allowedAuthMethods"] as List<String>
         val currencyCode = args["currencyCode"] as? String
         val countryCode = args["countryCode"] as? String
         val emailRequired = args["emailRequired"] as? Boolean
@@ -175,6 +184,13 @@ class FlutterPayPlugin : FlutterPlugin, MethodCallHandler, PluginRegistry.Activi
             availablePaymentNetworks
         }
 
+        val authMethods: List<String> = if (allowedAuthMethods.count() > 0) {
+            allowedAuthMethods.mapNotNull { decodeAuthMethods(it) }
+        } else {
+            availableAuthMethods
+        }
+        print("requestPayment, authMethods: ${authMethods}\n")
+
         if (totalPrice <= 0.0) {
             this.lastResult?.error("zeroPrice", "Invalid price", "Total price cannot be zero or less than zero")
             return
@@ -194,7 +210,7 @@ class FlutterPayPlugin : FlutterPlugin, MethodCallHandler, PluginRegistry.Activi
                 .putOpt("merchantInfo", merchantInfo)
                 .put("emailRequired", emailRequired)
                 .put("transactionInfo", getTransactionInfo(totalPrice, currencyCode, countryCode))
-                .put("allowedPaymentMethods", JSONArray().put(getCardPaymentMethod(gatewayName, gatewayMerchantID, paymentNetworks)))
+                .put("allowedPaymentMethods", JSONArray().put(getCardPaymentMethod(gatewayName, gatewayMerchantID, paymentNetworks, authMethods)))
 
         val paymentDataRequest = PaymentDataRequest.fromJson(paymentRequestJson.toString(4))
 
@@ -293,7 +309,13 @@ class FlutterPayPlugin : FlutterPlugin, MethodCallHandler, PluginRegistry.Activi
                 }
 
             } else if (resultCode == Activity.RESULT_CANCELED) {
+                print("Activity.RESULT_CANCELED")
                 this.lastResult?.error("userCancelledError", "User cancelled the payment", null)
+            } else if (resultCode == AutoResolveHelper.RESULT_ERROR) {
+                val status = AutoResolveHelper.getStatusFromIntent(data);
+                print("AutoResolveHelper.RESULT_ERROR")
+                print("Status: ${status?.toString()}")
+                this.lastResult?.error("paymentError", "Google Pay returned payment error", null)
             }
 
             this.lastResult = null
