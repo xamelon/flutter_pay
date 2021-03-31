@@ -17,5 +17,10 @@ dev_dependencies:
 
 flutter:
   plugin:
-    androidPackage: com.xamelon.flutter_pay
-    pluginClass: FlutterPayPlugin
+    platforms:
+      android:
+        package: com.xamelon.flutter_pay
+        pluginClass: FlutterPayPlugin
+      ios:
+        pluginClass: FlutterPayPlugin
+        
