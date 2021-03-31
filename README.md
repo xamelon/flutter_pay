@@ -1,4 +1,4 @@
-<img src="/Users/bodyblock/work/projects/gala/flutter_pay/res/flutter_pay.png" alt="flutter_pay" style="zoom:67%;" />
+<img src="res/flutter_pay.png" alt="flutter_pay" style="zoom:67%;" />
 
 ## Google Pay Preparing
 
