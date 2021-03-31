@@ -6,7 +6,8 @@ class FlutterPay {
   /// Switch Google Pay [environment]
   ///
   /// See [PaymentEnvironment]
-  void setEnvironment({PaymentEnvironment environment}) {
+  void setEnvironment(
+      {PaymentEnvironment environment = PaymentEnvironment.Test}) {
     var params = <String, bool>{
       "isTestEnvironment": environment == PaymentEnvironment.Test,
     };
@@ -23,9 +24,8 @@ class FlutterPay {
   ///
   /// You can set allowed payment networks in [allowedPaymentNetworks] parameter.
   /// See [PaymentNetwork]
-  Future<bool> canMakePaymentsWithActiveCard({
-    List<PaymentNetwork> allowedPaymentNetworks,
-  }) async {
+  Future<bool> canMakePaymentsWithActiveCard(
+      {required List<PaymentNetwork> allowedPaymentNetworks}) async {
     var paymentNetworks =
         allowedPaymentNetworks.map((network) => network.getName).toList();
     var params = <String, dynamic>{"paymentNetworks": paymentNetworks};
@@ -49,13 +49,13 @@ class FlutterPay {
   /// * [merchantName] - affects only Google Pay.
   /// Mercant name which will be displayed to customer.
   Future<String> requestPayment({
-    GoogleParameters googleParameters,
-    AppleParameters appleParameters,
+    GoogleParameters? googleParameters,
+    AppleParameters? appleParameters,
     List<PaymentNetwork> allowedPaymentNetworks = const [],
-    List<PaymentItem> paymentItems,
+    required List<PaymentItem> paymentItems,
     bool emailRequired = false,
-    String currencyCode,
-    String countryCode,
+    required String currencyCode,
+    required String countryCode,
   }) async {
     var items = paymentItems.map((item) => item.toJson()).toList();
     var params = <String, dynamic>{
@@ -83,7 +83,7 @@ class FlutterPay {
       }
 
       var paymentToken = payResponse["token"];
-      if (paymentToken?.isNotEmpty ?? false) {
+      if (paymentToken != null) {
         print("Payment token: $paymentToken");
         return paymentToken;
       } else {
