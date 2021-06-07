@@ -4,7 +4,7 @@ class PaymentItem {
   final String name;
   final double price;
 
-  PaymentItem({this.name, this.price});
+  PaymentItem({required this.name, required this.price});
 
   Map<String, String> toJson() => {
         "name": name,

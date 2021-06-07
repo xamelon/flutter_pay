@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.0
+- Migrate to Null Safety
+- Fix AmericanExpress on Android
+
 ## 0.10.0
 
 - Add Google/Apple Pay options

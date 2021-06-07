@@ -6,7 +6,7 @@ fun decodePaymentNetwork(name: String): String? {
         "MASTERCARD" -> "MASTERCARD"
         "DISCOVER" -> "DISCOVER"
         "JCB" -> "JCB"
-        "AMEX" -> "AMEX"
+        "AMERICANEXPRESS" -> "AMEX"
         else -> null
     }
 }
