@@ -20,9 +20,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   void makePayment() async {
-    List<PaymentItem> items = [
-      PaymentItem(name: "T-Shirt", price: 2.98)
-    ];
+    List<PaymentItem> items = [PaymentItem(name: "T-Shirt", price: 2.98)];
 
     flutterPay.setEnvironment(environment: PaymentEnvironment.Test);
 
@@ -31,8 +29,14 @@ class _MyAppState extends State<MyApp> {
         gatewayName: "example",
         gatewayMerchantId: "example_id",
       ),
-      appleParameters:
-          AppleParameters(merchantIdentifier: "merchant.flutterpay.example"),
+      appleParameters: AppleParameters(
+        merchantIdentifier: "merchant.flutterpay.example",
+        merchantCapabilities: [
+          MerchantCapability.threeDS,
+          MerchantCapability.credit,
+          MerchantCapability.debit
+        ],
+      ),
       currencyCode: "USD",
       countryCode: "US",
       paymentItems: items,

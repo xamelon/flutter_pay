@@ -12,3 +12,4 @@ part 'src/payment_network.dart';
 part 'src/apple_parameters.dart';
 part 'src/google_parameters.dart';
 part 'src/card_auth_methods.dart';
+part 'src/merchant_capability.dart';
