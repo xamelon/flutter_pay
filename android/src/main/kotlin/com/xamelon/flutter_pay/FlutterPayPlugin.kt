@@ -48,7 +48,7 @@ class FlutterPayPlugin : FlutterPlugin, MethodCallHandler, PluginRegistry.Activi
             val plugin = FlutterPayPlugin()
             channel.setMethodCallHandler(plugin)
             registrar.addActivityResultListener(plugin)
-            plugin.activity = registrar.activity()
+            plugin.activity = registrar.activity()!!
             plugin.createPaymentsClient()
         }
     }
